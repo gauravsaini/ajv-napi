@@ -14,8 +14,8 @@ on:
     branches:
       - main
       - master
-    tags-ignore:
-      - '**'
+    tags:
+      - 'v*'
   pull_request: null
 
 jobs:
