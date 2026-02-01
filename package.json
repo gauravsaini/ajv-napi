@@ -1,0 +1,14 @@
+{
+  "name": "ajv-napi",
+  "version": "0.1.0",
+  "main": "wrapper.js",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "napi": {
+    "name": "ajv-napi",
+    "triples": {
+      "defaults": true
+    }
+  }
+}
