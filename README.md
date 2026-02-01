@@ -7,30 +7,6 @@ A high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-vali
 
 Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing for maximum throughput.
 
-## 🎯 Problems We Solve
-
-ajv-napi addresses several long-standing issues from the [Ajv issue tracker](https://github.com/ajv-validator/ajv/issues) that are **architecturally impossible to fix in JavaScript**:
-
-| Ajv Issue | Problem | ajv-napi Solution |
-|-----------|---------|-------------------|
-| [#2209](https://github.com/ajv-validator/ajv/issues/2209) | **ESM / Bundler Issues** — Ajv generated code uses `require`, breaking Vite/Rollup | **Native ESM Support** — `ajv-napi` ships with strict ESM exports and native binary |
-| [#2491](https://github.com/ajv-validator/ajv/issues/2491) | **Cloudflare/Edge Workers blocked** — Ajv uses `new Function` which edge runtimes prohibit | Native binary — no `eval` or `new Function` needed |
-| [#2527](https://github.com/ajv-validator/ajv/issues/2527) | **CSP (Content Security Policy)** — browsers block `unsafe-eval` directive required by Ajv | Compiled Rust code is CSP-compliant by default |
-| [#2557](https://github.com/ajv-validator/ajv/issues/2557) | **Memory leaks** — repeated `compile()` calls cause memory growth | Rust's ownership model prevents memory leaks |
-| [#2530](https://github.com/ajv-validator/ajv/issues/2530) | **Firefox "function nested too deeply"** — large schemas crash browsers | Native code has no JS function nesting limits |
-| [#2561](https://github.com/ajv-validator/ajv/issues/2561) | **`multipleOf` incorrect for large integers** — JS floating-point precision issues | Rust's precise integer arithmetic |
-| [#2565](https://github.com/ajv-validator/ajv/issues/2565) | **Performance optimization requests** | SIMD-accelerated parsing + compiled regex |
-
-### Why These Can't Be Fixed in Ajv
-
-Ajv generates validation functions using `new Function()` at runtime — this is core to its architecture and enables its speed. However, this approach is blocked by:
-
-- **Edge runtimes** (Cloudflare Workers, Vercel Edge, Deno Deploy)
-- **Strict CSP policies** (no `unsafe-eval`)
-- **Browser security sandboxes**
-
-**ajv-napi uses pre-compiled Rust code** — no runtime code generation, no `eval`, no CSP issues.
-
 ## 🔄 Ajv Compatibility
 
 **ajv-napi is fully API-compatible with [ajv-validator/ajv](https://github.com/ajv-validator/ajv)**. You can swap it into your existing codebase with zero code changes:
