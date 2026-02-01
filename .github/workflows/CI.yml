@@ -88,6 +88,14 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Fix permissions for Docker
+        if: ${{ matrix.settings.docker }}
+        run: |
+          touch Cargo.lock
+          chmod 666 Cargo.lock
+          mkdir -p target
+          chmod 777 target
+
       - name: Build in docker
         uses: addnab/docker-run-action@v3
         if: ${{ matrix.settings.docker }}
