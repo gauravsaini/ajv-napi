@@ -6,12 +6,9 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-#[cfg(not(target_env = "musl"))]
-use mimalloc::MiMalloc;
-
-#[cfg(not(target_env = "musl"))]
+#[cfg(not(any(target_arch = "arm", target_os = "freebsd", target_family = "wasm")))]
 #[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
+static ALLOC: mimalloc_safe::MiMalloc = mimalloc_safe::MiMalloc;
 
 // Thread-local buffer to avoid repeated allocations for simd-json parsing
 thread_local! {
