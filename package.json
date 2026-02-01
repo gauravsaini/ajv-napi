@@ -1,14 +1,61 @@
 {
-  "name": "ajv-napi",
+  "name": "@gauravsaini/ajv-napi",
   "version": "0.1.0",
+  "description": "High-performance JSON Schema validator using NAPI-RS and Rust",
   "main": "wrapper.js",
+  "types": "index.d.ts",
+  "files": [
+    "wrapper.js",
+    "index.js",
+    "index.d.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gauravsaini/ajv-napi.git"
+  },
+  "keywords": [
+    "json",
+    "schema",
+    "validator",
+    "ajv",
+    "napi",
+    "rust",
+    "performance"
+  ],
+  "author": "gauravsaini",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gauravsaini/ajv-napi/issues"
+  },
+  "homepage": "https://github.com/gauravsaini/ajv-napi#readme",
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "artifacts": "napi artifacts",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "node test.js",
+    "version": "napi version"
+  },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0"
   },
   "napi": {
     "name": "ajv-napi",
     "triples": {
-      "defaults": true
+      "defaults": true,
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc"
+      ]
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
