@@ -12,6 +12,7 @@
   "types": "index.d.ts",
   "files": [
     "wrapper.js",
+    "wrapper.mjs",
     "index.js",
     "index.d.ts"
   ],
@@ -42,7 +43,7 @@
     "build:debug": "napi build --platform",
     "artifacts": "napi artifacts",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "node test.js",
+    "test": "node test.js && node test-features.js && node test-esm.mjs",
     "version": "napi version"
   },
   "devDependencies": {
