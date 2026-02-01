@@ -1,6 +1,6 @@
 # ajv-napi
 
-[![npm version](https://badge.fury.io/js/%40gauravsaini%2Fajv-napi.svg)](https://www.npmjs.com/package/@gauravsaini/ajv-napi)
+[![npm version](https://badge.fury.io/js/ajv-napi.svg)](https://www.npmjs.com/package/ajv-napi)
 [![CI](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml/badge.svg)](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml)
 
 A high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv) — the most popular JSON Schema validator for JavaScript.
@@ -16,7 +16,7 @@ Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing for maximum throughp
 const Ajv = require("ajv")
 
 // After — just change the import!
-const Ajv = require("@gauravsaini/ajv-napi")
+const Ajv = require("ajv-napi")
 
 // Your existing code works unchanged
 const ajv = new Ajv()
@@ -87,9 +87,9 @@ Benchmarks on Node.js v22 (Apple M1 Max) with Buffer inputs:
 ## 📦 Installation
 
 ```bash
-npm install @gauravsaini/ajv-napi
+npm install ajv-napi
 # or
-yarn add @gauravsaini/ajv-napi
+yarn add ajv-napi
 ```
 
 Pre-built binaries available for:
@@ -102,7 +102,7 @@ Pre-built binaries available for:
 ### Standard Ajv API (drop-in replacement)
 
 ```javascript
-const Ajv = require("@gauravsaini/ajv-napi")
+const Ajv = require("ajv-napi")
 const ajv = new Ajv()
 
 const schema = {
@@ -175,8 +175,8 @@ yarn test
 
 ## 🤝 Migration from Ajv
 
-1. Install: `npm install @gauravsaini/ajv-napi`
-2. Replace import: `require("ajv")` → `require("@gauravsaini/ajv-napi")`
+1. Install: `npm install ajv-napi`
+2. Replace import: `require("ajv")` → `require("ajv-napi")`
 3. Done! Your existing code works unchanged.
 
 For maximum performance, consider using `validateBuffer()` for I/O workloads.
