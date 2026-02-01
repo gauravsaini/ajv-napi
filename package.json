@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "description": "High-performance JSON Schema validator using NAPI-RS and Rust",
   "main": "wrapper.js",
+  "exports": {
+    ".": {
+      "import": "./wrapper.mjs",
+      "require": "./wrapper.js"
+    }
+  },
   "types": "index.d.ts",
   "files": [
     "wrapper.js",

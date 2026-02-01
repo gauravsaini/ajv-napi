@@ -13,6 +13,7 @@ ajv-napi addresses several long-standing issues from the [Ajv issue tracker](htt
 
 | Ajv Issue | Problem | ajv-napi Solution |
 |-----------|---------|-------------------|
+| [#2209](https://github.com/ajv-validator/ajv/issues/2209) | **ESM / Bundler Issues** — Ajv generated code uses `require`, breaking Vite/Rollup | **Native ESM Support** — `ajv-napi` ships with strict ESM exports and native binary |
 | [#2491](https://github.com/ajv-validator/ajv/issues/2491) | **Cloudflare/Edge Workers blocked** — Ajv uses `new Function` which edge runtimes prohibit | Native binary — no `eval` or `new Function` needed |
 | [#2527](https://github.com/ajv-validator/ajv/issues/2527) | **CSP (Content Security Policy)** — browsers block `unsafe-eval` directive required by Ajv | Compiled Rust code is CSP-compliant by default |
 | [#2557](https://github.com/ajv-validator/ajv/issues/2557) | **Memory leaks** — repeated `compile()` calls cause memory growth | Rust's ownership model prevents memory leaks |
@@ -159,7 +160,8 @@ validate.isValidBuffer(buf)     // Fast path — boolean only, no error details
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `new Ajv(options?)` | `Ajv` | Create validator instance |
-| `ajv.compile(schema)` | `ValidateFunction` | Compile schema |
+| `ajv.compile(schema, opts?)` | `ValidateFunction` | Compile schema. `opts.validateFormats` supported. |
+| `ajv.removeSchema()` | `Ajv` | Clears all cached schemas (fixing memory leaks) |
 | `validate(data)` | `boolean` | Validate JS object/value |
 | `validate.errors` | `Error[] \| null` | Validation errors (Ajv format) |
 | `validate.validateString(str)` | `boolean` | Validate JSON string |

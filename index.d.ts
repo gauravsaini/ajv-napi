@@ -15,7 +15,8 @@ export interface AjvError {
 export declare class Ajv {
   constructor()
   addSchema(schema: any, key?: string | undefined | null): void
-  compile(schema: any, draftUri?: string | undefined | null): NapiValidator
+  clearCache(): void
+  compile(schema: any, draftUri?: string | undefined | null, validateFormats?: boolean | undefined | null): NapiValidator
 }
 export declare class NapiValidator {
   validate(data: any): ValidationResult

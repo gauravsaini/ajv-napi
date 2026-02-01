@@ -8,12 +8,13 @@ class Ajv {
     this.errors = null
   }
 
-  compile(schema) {
+  compile(schema, opts) {
     let validator
     const draft = this.opts.defaultMeta
+    const validateFormats = opts?.validateFormats ?? this.opts.validateFormats ?? true
 
     try {
-      validator = this.napiAjv.compile(schema, draft)
+      validator = this.napiAjv.compile(schema, draft, validateFormats)
     } catch (e) {
       throw new Error("Schema compilation failed: " + e)
     }
@@ -90,6 +91,14 @@ class Ajv {
 
   addMetaSchema(schema, key) {
     return this.addSchema(schema, key)
+  }
+
+  removeSchema(schemaKey) {
+    if (schemaKey === undefined) {
+      this.napiAjv.clearCache()
+    }
+    // TODO: Implement removing single schema by key
+    return this
   }
 }
 

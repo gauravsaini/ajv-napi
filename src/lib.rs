@@ -86,10 +86,17 @@ impl Ajv {
     }
 
     #[napi]
+    pub fn clear_cache(&mut self) {
+        let schemas = Arc::make_mut(&mut self.schemas);
+        schemas.clear();
+    }
+
+    #[napi]
     pub fn compile(
         &self,
         schema: serde_json::Value,
         draft_uri: Option<String>,
+        validate_formats: Option<bool>,
     ) -> Result<NapiValidator> {
         // Create retriever with registered schemas
         let retriever = SchemaRetriever {
@@ -98,9 +105,13 @@ impl Ajv {
 
         // Enable format validation to pass strict Ajv tests
         let mut options = jsonschema::options();
-        options = options
-            .with_retriever(retriever)
-            .should_validate_formats(true);
+        options = options.with_retriever(retriever);
+
+        if let Some(validate) = validate_formats {
+            options = options.should_validate_formats(validate);
+        } else {
+            options = options.should_validate_formats(true);
+        }
 
         if let Some(uri) = draft_uri {
             if let Some(draft) = match uri.as_str() {
