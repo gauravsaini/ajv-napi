@@ -6,7 +6,7 @@ yarn-error.log*
 
 # Rust/Cargo
 target/
-Cargo.lock
+
 
 # NAPI-RS build artifacts
 *.node
