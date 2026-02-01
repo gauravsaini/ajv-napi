@@ -22,9 +22,10 @@ mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit"] }
 [target.'cfg(all(target_os = "linux", not(target_arch = "arm"), not(target_arch = "aarch64")))'.dependencies]
 mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls"] }
 
-# Linux ARM64 (glibc/musl) - Oxc adds no_opt_arch for safety
+# Linux ARM64 (glibc/musl)
 [target.'cfg(all(target_os = "linux", target_arch = "aarch64"))'.dependencies]
 mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls", "no_opt_arch"] }
+
 
 
 [build-dependencies]
