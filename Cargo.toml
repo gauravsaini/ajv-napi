@@ -15,16 +15,16 @@ jsonschema = "0.29.0"
 simd-json = "0.13"
 
 # MacOS / Windows
-[target.'cfg(not(any(target_os = "linux", target_os = "android", target_os = "freebsd", target_arch = "arm", target_family = "wasm")))'.dependencies]
-mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit"] }
+# [target.'cfg(not(any(target_os = "linux", target_os = "android", target_os = "freebsd", target_arch = "arm", target_family = "wasm")))'.dependencies]
+# mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit"] }
 
 # Linux x64 (glibc/musl)
-[target.'cfg(all(target_os = "linux", not(target_arch = "arm"), not(target_arch = "aarch64")))'.dependencies]
-mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls"] }
+# [target.'cfg(all(target_os = "linux", not(target_arch = "arm"), not(target_arch = "aarch64")))'.dependencies]
+# mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls"] }
 
 # Linux ARM64 (glibc/musl)
-[target.'cfg(all(target_os = "linux", target_arch = "aarch64"))'.dependencies]
-mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls", "no_opt_arch"] }
+# [target.'cfg(all(target_os = "linux", target_arch = "aarch64"))'.dependencies]
+# mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dynamic_tls", "no_opt_arch"] }
 
 
 

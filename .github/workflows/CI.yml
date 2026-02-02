@@ -64,6 +64,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -131,6 +133,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -163,6 +167,8 @@ jobs:
     if: success() && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup node
         uses: actions/setup-node@v4
