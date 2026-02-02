@@ -51,6 +51,9 @@
   },
   "napi": {
     "name": "ajv-napi",
+    "package": {
+      "name": "@gauravsaini/ajv-napi"
+    },
     "triples": {
       "defaults": true,
       "additional": [
