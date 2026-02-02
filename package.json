@@ -1,6 +1,6 @@
 {
   "name": "ajv-napi",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "High-performance JSON Schema validator using NAPI-RS and Rust",
   "main": "wrapper.js",
   "exports": {
