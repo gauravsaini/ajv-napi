@@ -94,8 +94,9 @@ yarn add ajv-napi
 
 Pre-built binaries available for:
 - macOS (x64, ARM64)
-- Linux (x64, ARM64, musl)
 - Windows (x64, ARM64)
+
+> **Note:** Linux binaries are temporarily unavailable due to CI infrastructure issues. Linux support will be restored shortly. In the meantime, Linux users can build from source.
 
 ## 📖 Usage
 
