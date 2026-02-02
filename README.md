@@ -7,6 +7,28 @@ A high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-vali
 
 Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing for maximum throughput.
 
+## 🚀 Quick Start & Demo
+
+We provide a complete runnable demo in the `demo/` folder.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/gauravsaini/ajv-napi.git
+cd ajv-napi/demo
+
+# 2. Install dependencies
+npm install
+
+# 3. Run the demo
+node index.js
+```
+
+This demo showcases:
+- Basic schema compilation & validation
+- Error handling
+- Cache control
+- Validating valid/invalid data
+
 ## 🔄 Ajv Compatibility
 
 **ajv-napi is fully API-compatible with [ajv-validator/ajv](https://github.com/ajv-validator/ajv)**. You can swap it into your existing codebase with zero code changes:
