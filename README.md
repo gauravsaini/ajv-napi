@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/ajv-napi.svg)](https://www.npmjs.com/package/ajv-napi)
 [![CI](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml/badge.svg)](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml)
 
-The **most spec-compliant** and **fastest buffer-based** JSON Schema validator for Node.js — a high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv).
+The **safest**, **most spec-compliant**, and **fastest buffer-based** JSON Schema validator for Node.js — a high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv).
 
 Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing. **#1 in correctness** across Draft 6 & Draft 7 in the [json-schema-benchmark](https://github.com/ebdrup/json-schema-benchmark) suite.
 
@@ -233,7 +233,43 @@ validate.isValidBuffer(buf) // Fast path — boolean only, no error details
 - **Thread-local buffers**: Avoids repeated allocations
 - **Zero-copy validation**: Buffer inputs avoid JS string conversion
 
-## 🔨 Building from Source
+## �️ Safest Validator
+
+ajv-napi is built for safety-critical applications:
+
+1.  **Memory Safety**: Built with Rust, eliminating entire classes of memory bugs (buffer overflows, use-after-free) common in C/C++ bindings.
+2.  **Spec Compliance**: Ranked **#1** in correctness, ensuring invalid data never slips through due to validator bugs.
+3.  **Crash Safety**: Handles deeply nested or malicious JSON without crashing (stack overflow protection via `jsonschema` crate limitation).
+
+## 🛠️ Usage in Build Scripts / CI
+
+You can use `ajv-napi` to validate configuration files or static assets during your build process.
+
+**`scripts/validate-config.js`**:
+
+```javascript
+const Ajv = require("ajv-napi")
+const fs = require("fs")
+const path = require("path")
+
+const ajv = new Ajv()
+const schema = require("../schemas/config.schema.json")
+const validate = ajv.compile(schema)
+
+const configPath = path.join(__dirname, "../config/production.json")
+const configData = fs.readFileSync(configPath)
+
+// Use validateBuffer for max speed
+if (!validate.validateBuffer(configData)) {
+  console.error("❌ Configuration invalid:")
+  console.error(validate.errors)
+  process.exit(1)
+}
+
+console.log("✅ Configuration valid")
+```
+
+## �🔨 Building from Source
 
 Requires Rust toolchain and Node.js:
 
