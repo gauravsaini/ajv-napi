@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/ajv-napi.svg)](https://www.npmjs.com/package/ajv-napi)
 [![CI](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml/badge.svg)](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml)
 
-The **most spec-compliant** JSON Schema validator for Node.js — and a high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv).
+The **fastest buffer-based** JSON Schema validator for Node.js — and a high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv).
 
 Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing. **#1 in correctness** across Draft 6 & Draft 7 in the [json-schema-benchmark](https://github.com/ebdrup/json-schema-benchmark) suite.
 
@@ -153,9 +153,8 @@ Tested against **23 validators** using the [json-schema-benchmark](https://githu
 
 ### When ajv-napi Shines
 
+- ✅ **Fastest buffer validation**: Direct zero-copy validation from Buffer inputs (ideal for high-throughput I/O)
 - ✅ Complex schemas with regex, format validation, conditionals
-- ✅ High-throughput validation pipelines (API servers, message queues)
-- ✅ Buffer/stream inputs (files, network I/O)
 - ✅ Large JSON payloads where GC pressure matters
 
 ### When to Stick with Ajv
