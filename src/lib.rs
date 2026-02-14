@@ -113,10 +113,11 @@ impl Ajv {
         }
 
         if let Some(uri) = draft_uri {
-            if let Some(draft) = match uri.as_str() {
-                "http://json-schema.org/draft-04/schema#" => Some(Draft::Draft4),
-                "http://json-schema.org/draft-06/schema#" => Some(Draft::Draft6),
-                "http://json-schema.org/draft-07/schema#" => Some(Draft::Draft7),
+            let normalized = uri.trim_end_matches('#');
+            if let Some(draft) = match normalized {
+                "http://json-schema.org/draft-04/schema" => Some(Draft::Draft4),
+                "http://json-schema.org/draft-06/schema" => Some(Draft::Draft6),
+                "http://json-schema.org/draft-07/schema" => Some(Draft::Draft7),
                 "https://json-schema.org/draft/2019-09/schema" => Some(Draft::Draft201909),
                 "https://json-schema.org/draft/2020-12/schema" => Some(Draft::Draft202012),
                 _ => None,

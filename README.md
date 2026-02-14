@@ -3,9 +3,9 @@
 [![npm version](https://badge.fury.io/js/ajv-napi.svg)](https://www.npmjs.com/package/ajv-napi)
 [![CI](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml/badge.svg)](https://github.com/gauravsaini/ajv-napi/actions/workflows/CI.yml)
 
-A high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv) — the most popular JSON Schema validator for JavaScript.
+The **most spec-compliant** JSON Schema validator for Node.js — and a high-performance **drop-in replacement** for [Ajv](https://github.com/ajv-validator/ajv).
 
-Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing for maximum throughput.
+Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing. **#1 in correctness** across Draft 6 & Draft 7 in the [json-schema-benchmark](https://github.com/ebdrup/json-schema-benchmark) suite.
 
 ## 🚀 Quick Start & Demo
 
@@ -24,6 +24,7 @@ node index.js
 ```
 
 This demo showcases:
+
 - Basic schema compilation & validation
 - Error handling
 - Cache control
@@ -43,27 +44,28 @@ const Ajv = require("ajv-napi")
 // Your existing code works unchanged
 const ajv = new Ajv()
 const validate = ajv.compile(schema)
-validate(data)              // ✅ Same API
-validate.errors             // ✅ Same error format
+validate(data) // ✅ Same API
+validate.errors // ✅ Same error format
 ```
 
 ### Supported Ajv Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| `new Ajv()` constructor | ✅ | Full options support |
-| `ajv.compile(schema)` | ✅ | Returns validate function |
-| `validate(data)` | ✅ | Boolean + errors array |
-| `validate.errors` | ✅ | Ajv-compatible error objects |
-| JSON Schema Draft-07 | ✅ | Full spec compliance |
-| JSON Schema Draft-04/06 | ✅ | Supported |
-| `format` keyword | ✅ | email, uri, date-time, etc. |
-| `$ref` references | ✅ | Local and remote refs |
-| `additionalProperties` | ✅ | Full support |
-| `allOf/anyOf/oneOf` | ✅ | Full support |
-| `if/then/else` | ✅ | Conditional schemas |
-| Custom keywords | ⚠️ | Not yet (use Ajv for this) |
-| Custom formats (JS) | ⚠️ | Not yet (use Ajv for this) |
+| Feature                 | Status | Notes                                                |
+| ----------------------- | ------ | ---------------------------------------------------- |
+| `new Ajv()` constructor | ✅     | Full options support                                 |
+| `ajv.compile(schema)`   | ✅     | Returns validate function                            |
+| `validate(data)`        | ✅     | Boolean + errors array                               |
+| `validate.errors`       | ✅     | Ajv-compatible error objects                         |
+| JSON Schema Draft-07    | ✅     | **#1 most compliant** (2 failing tests vs ajv's 103) |
+| JSON Schema Draft-06    | ✅     | **#1 most compliant** (2 failing tests vs ajv's 10)  |
+| JSON Schema Draft-04    | ✅     | **#2 most compliant** (6 failing tests vs ajv's 26)  |
+| `format` keyword        | ✅     | email, uri, date-time, etc.                          |
+| `$ref` references       | ✅     | Local and remote refs                                |
+| `additionalProperties`  | ✅     | Full support                                         |
+| `allOf/anyOf/oneOf`     | ✅     | Full support                                         |
+| `if/then/else`          | ✅     | Conditional schemas                                  |
+| Custom keywords         | ⚠️     | Not yet (use Ajv for this)                           |
+| Custom formats (JS)     | ⚠️     | Not yet (use Ajv for this)                           |
 
 ### Error Format Compatibility
 
@@ -83,15 +85,49 @@ console.log(validate.errors)
 // ]
 ```
 
-## 🚀 Performance vs Ajv
+## 🏆 Spec Compliance — json-schema-benchmark
 
-Benchmarks on Node.js v22 (Apple M1 Max) with Buffer inputs:
+Tested against **23 validators** using the [json-schema-benchmark](https://github.com/ebdrup/json-schema-benchmark) suite (JSON Schema Test Suite).
 
-| Scenario | ajv-napi | ajv (JS) | Improvement |
-|----------|----------|----------|-------------|
-| **Simple Schema** | ~1.59M ops/sec | ~1.71M ops/sec | -7% (V8 wins simple cases) |
-| **Complex Schema** | ~1,738 ops/sec | ~1,123 ops/sec | **+55%** |
-| **Large Payload (260KB)** | ~1,475 ops/sec | ~1,074 ops/sec | **+37%** |
+### Draft 7 — 🥇 #1 Most Compliant
+
+| Validator             | Failing Tests |
+| --------------------- | :-----------: |
+| **ajv-napi**          |     **2**     |
+| @cfworker/json-schema |      49       |
+| jsonschema            |      77       |
+| @exodus/schemasafe    |      101      |
+| ajv                   |      103      |
+
+### Draft 6 — 🥇 #1 Most Compliant
+
+| Validator             | Failing Tests |
+| --------------------- | :-----------: |
+| **ajv-napi**          |     **2**     |
+| @exodus/schemasafe    |       8       |
+| @cfworker/json-schema |       9       |
+| ajv                   |      10       |
+
+### Draft 4 — 🥈 #2 Most Compliant
+
+| Validator             | Failing Tests |
+| --------------------- | :-----------: |
+| @exodus/schemasafe    |       3       |
+| **ajv-napi**          |     **6**     |
+| @cfworker/json-schema |       9       |
+| ajv                   |      26       |
+
+> The only 2 remaining failures in Draft 6/7 are `contentMediaType`/`contentEncoding` validation — an optional spec feature that most validators skip.
+
+## 🚀 Performance
+
+### Micro-benchmarks (Node.js v22, Apple M1 Max, Buffer inputs)
+
+| Scenario                  | ajv-napi       | ajv (JS)       | Improvement                |
+| ------------------------- | -------------- | -------------- | -------------------------- |
+| **Simple Schema**         | ~1.59M ops/sec | ~1.71M ops/sec | -7% (V8 wins simple cases) |
+| **Complex Schema**        | ~1,738 ops/sec | ~1,123 ops/sec | **+55%**                   |
+| **Large Payload (260KB)** | ~1,475 ops/sec | ~1,074 ops/sec | **+37%**                   |
 
 ### When ajv-napi Shines
 
@@ -115,6 +151,7 @@ yarn add ajv-napi
 ```
 
 Pre-built binaries available for:
+
 - macOS (x64, ARM64)
 - Windows (x64, ARM64)
 
@@ -131,16 +168,16 @@ const ajv = new Ajv()
 const schema = {
   type: "object",
   properties: {
-    email: { type: "string", format: "email" },
-    age: { type: "integer", minimum: 0 }
+    email: {type: "string", format: "email"},
+    age: {type: "integer", minimum: 0},
   },
-  required: ["email"]
+  required: ["email"],
 }
 
 const validate = ajv.compile(schema)
 
 // Standard validation
-const valid = validate({ email: "test@example.com", age: 25 })
+const valid = validate({email: "test@example.com", age: 25})
 if (!valid) console.log(validate.errors)
 ```
 
@@ -150,22 +187,22 @@ if (!valid) console.log(validate.errors)
 // For I/O workloads — validate buffers directly without JS parsing
 const buf = Buffer.from('{"email":"test@example.com","age":25}')
 
-validate.validateBuffer(buf)    // Returns boolean, populates errors
-validate.isValidBuffer(buf)     // Fast path — boolean only, no error details
+validate.validateBuffer(buf) // Returns boolean, populates errors
+validate.isValidBuffer(buf) // Fast path — boolean only, no error details
 ```
 
 ## 🔧 API Reference
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `new Ajv(options?)` | `Ajv` | Create validator instance |
-| `ajv.compile(schema, opts?)` | `ValidateFunction` | Compile schema. `opts.validateFormats` supported. |
-| `ajv.removeSchema()` | `Ajv` | Clears all cached schemas (fixing memory leaks) |
-| `validate(data)` | `boolean` | Validate JS object/value |
-| `validate.errors` | `Error[] \| null` | Validation errors (Ajv format) |
-| `validate.validateString(str)` | `boolean` | Validate JSON string |
-| `validate.validateBuffer(buf)` | `boolean` | Validate Buffer (recommended) |
-| `validate.isValidBuffer(buf)` | `boolean` | Fast validation, no errors |
+| Method                         | Returns            | Description                                       |
+| ------------------------------ | ------------------ | ------------------------------------------------- |
+| `new Ajv(options?)`            | `Ajv`              | Create validator instance                         |
+| `ajv.compile(schema, opts?)`   | `ValidateFunction` | Compile schema. `opts.validateFormats` supported. |
+| `ajv.removeSchema()`           | `Ajv`              | Clears all cached schemas (fixing memory leaks)   |
+| `validate(data)`               | `boolean`          | Validate JS object/value                          |
+| `validate.errors`              | `Error[] \| null`  | Validation errors (Ajv format)                    |
+| `validate.validateString(str)` | `boolean`          | Validate JSON string                              |
+| `validate.validateBuffer(buf)` | `boolean`          | Validate Buffer (recommended)                     |
+| `validate.isValidBuffer(buf)`  | `boolean`          | Fast validation, no errors                        |
 
 ## 🏗️ Why Rust + NAPI?
 
