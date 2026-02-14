@@ -15,6 +15,8 @@ export interface AjvError {
 export declare class Ajv {
   constructor()
   addSchema(schema: any, key?: string | undefined | null): void
+  addFormat((name: string, format: (data: string) => boolean)): void
+  addKeyword((name: string, definition: (schema: any, data: any) => boolean)): void
   clearCache(): void
   compile(schema: any, draftUri?: string | undefined | null, validateFormats?: boolean | undefined | null): NapiValidator
 }
@@ -22,8 +24,6 @@ export declare class NapiValidator {
   validate(data: any): ValidationResult
   validateString(dataStr: string): ValidationResult
   validateBuffer(buffer: Buffer): ValidationResult
-  /** Fast path - only returns validity, no error details */
   isValidBuffer(buffer: Buffer): boolean
-  /** Fast path for string input - only returns validity */
   isValidString(dataStr: string): boolean
 }

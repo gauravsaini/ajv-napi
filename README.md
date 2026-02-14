@@ -50,22 +50,22 @@ validate.errors // ✅ Same error format
 
 ### Supported Ajv Features
 
-| Feature                 | Status | Notes                                                |
-| ----------------------- | ------ | ---------------------------------------------------- |
-| `new Ajv()` constructor | ✅     | Full options support                                 |
-| `ajv.compile(schema)`   | ✅     | Returns validate function                            |
-| `validate(data)`        | ✅     | Boolean + errors array                               |
-| `validate.errors`       | ✅     | Ajv-compatible error objects                         |
-| JSON Schema Draft-07    | ✅     | **#1 most compliant** (2 failing tests vs ajv's 103) |
-| JSON Schema Draft-06    | ✅     | **#1 most compliant** (2 failing tests vs ajv's 10)  |
-| JSON Schema Draft-04    | ✅     | **#2 most compliant** (6 failing tests vs ajv's 26)  |
-| `format` keyword        | ✅     | email, uri, date-time, etc.                          |
-| `$ref` references       | ✅     | Local and remote refs                                |
-| `additionalProperties`  | ✅     | Full support                                         |
-| `allOf/anyOf/oneOf`     | ✅     | Full support                                         |
-| `if/then/else`          | ✅     | Conditional schemas                                  |
-| Custom keywords         | ⚠️     | Not yet (use Ajv for this)                           |
-| Custom formats (JS)     | ⚠️     | Not yet (use Ajv for this)                           |
+| Feature                 | Status      | Notes                                                |
+| ----------------------- | ----------- | ---------------------------------------------------- |
+| `new Ajv()` constructor | ✅          | Full options support                                 |
+| `ajv.compile(schema)`   | ✅          | Returns validate function                            |
+| `validate(data)`        | ✅          | Boolean + errors array                               |
+| `validate.errors`       | ✅          | Ajv-compatible error objects                         |
+| JSON Schema Draft-07    | ✅          | **#1 most compliant** (2 failing tests vs ajv's 103) |
+| JSON Schema Draft-06    | ✅          | **#1 most compliant** (2 failing tests vs ajv's 10)  |
+| JSON Schema Draft-04    | ✅          | **#2 most compliant** (6 failing tests vs ajv's 26)  |
+| `format` keyword        | ✅          | email, uri, date-time, etc.                          |
+| `$ref` references       | ✅          | Local and remote refs                                |
+| `additionalProperties`  | ✅          | Full support                                         |
+| `allOf/anyOf/oneOf`     | ✅          | Full support                                         |
+| `if/then/else`          | ✅          | Conditional schemas                                  |
+| Custom keywords         | ✅ (Opt-in) | Supported via NAPI bridge                            |
+| Custom formats (JS)     | ✅ (Opt-in) | Supported via NAPI bridge                            |
 
 ### Error Format Compatibility
 
@@ -84,6 +84,28 @@ console.log(validate.errors)
 //   }
 // ]
 ```
+
+## 🔌 Custom Keywords & Formats (Opt-in)
+
+ajv-napi supports custom keywords and formats defined in JavaScript. This feature is **opt-in** because calling from Rust into V8 has a performance cost compared to native validation.
+
+### Custom Formats
+
+```javascript
+ajv.addFormat("foo", (data) => data === "bar")
+const schema = {type: "string", format: "foo"}
+```
+
+### Custom Keywords
+
+```javascript
+ajv.addKeyword("isEven", {
+  validate: (schema, data) => data % 2 === 0,
+})
+const schema = {type: "number", isEven: true}
+```
+
+> **Note:** For maximum performance, prefer standard JSON Schema keywords or regex formats where possible.
 
 ## 🏆 Spec Compliance — json-schema-benchmark
 

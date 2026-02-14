@@ -82,10 +82,39 @@ class Ajv {
   }
 
   addFormat(name, format) {
+    if (format && typeof format === "object" && format instanceof RegExp) {
+      const re = format
+      format = (s) => re.test(s)
+    }
+    if (typeof format === "function") {
+      try {
+        this.napiAjv.addFormat(name, format)
+      } catch (e) {
+        // Ignore error if not implemented or fails, to maintain drop-in compatibility
+        // console.warn("ajv-napi: addFormat failed", e)
+      }
+    }
     return this
   }
 
-  addKeyword(definition) {
+  addKeyword(keyword, definition) {
+    if (typeof keyword === "object") {
+      definition = keyword
+      keyword = definition.keyword
+    }
+
+    if (
+      typeof keyword === "string" &&
+      typeof definition === "object" &&
+      definition.validate &&
+      typeof definition.validate === "function"
+    ) {
+      try {
+        this.napiAjv.addKeyword(keyword, definition.validate)
+      } catch (e) {
+        // console.warn("ajv-napi: addKeyword failed", e)
+      }
+    }
     return this
   }
 
