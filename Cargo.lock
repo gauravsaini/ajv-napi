@@ -30,7 +30,7 @@ name = "ajv-napi"
 version = "0.1.0"
 dependencies = [
  "jsonschema",
- "mimalloc",
+ "mimalloc-safe",
  "napi",
  "napi-build",
  "napi-derive",
@@ -123,6 +123,15 @@ name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
+
+[[package]]
+name = "cmake"
+version = "0.1.57"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75443c44cd6b379beb8c5b45d85d0773baf31cce901fe7bb252f4eff3008ef7d"
+dependencies = [
+ "cc",
+]
 
 [[package]]
 name = "convert_case"
@@ -625,12 +634,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "libmimalloc-sys"
-version = "0.1.44"
+name = "libmimalloc-sys2"
+version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "667f4fec20f29dfc6bc7357c582d91796c169ad7e2fce709468aefeb2c099870"
+checksum = "485536c42886efc110f22bd03c543604e1a3ef7ffe13a29f114b2ed36d62afe3"
 dependencies = [
  "cc",
+ "cmake",
  "libc",
 ]
 
@@ -662,12 +672,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
-name = "mimalloc"
-version = "0.1.48"
+name = "mimalloc-safe"
+version = "0.1.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1ee66a4b64c74f4ef288bcbb9192ad9c3feaad75193129ac8509af543894fd8"
+checksum = "6a022c8c9ec9504034b60dd4cf12914cc348a19765dfdde50c1c1cc04961eb28"
 dependencies = [
- "libmimalloc-sys",
+ "libmimalloc-sys2",
 ]
 
 [[package]]
