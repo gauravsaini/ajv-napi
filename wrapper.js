@@ -20,17 +20,8 @@ class Ajv {
     }
 
     const validate = (data) => {
-      let result
-      try {
-        const jsonStr = JSON.stringify(data)
-        if (jsonStr === undefined) {
-          result = validator.validate(data)
-        } else {
-          result = validator.validateString(jsonStr)
-        }
-      } catch (e) {
-        result = validator.validate(data)
-      }
+      // Use N-API serde directly — avoids JSON.stringify() + serde_json::from_str() round-trip
+      const result = validator.validate(data)
 
       if (result.valid) {
         validate.errors = null
@@ -55,6 +46,21 @@ class Ajv {
 
     validate.isValidBuffer = (buffer) => {
       return validator.isValidBuffer(buffer)
+    }
+
+    validate.validateString = (str) => {
+      const result = validator.validateString(str)
+      if (result.valid) {
+        validate.errors = null
+        return true
+      } else {
+        validate.errors = result.errors
+        return false
+      }
+    }
+
+    validate.isValidString = (str) => {
+      return validator.isValidString(str)
     }
 
     validate.schema = schema

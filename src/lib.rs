@@ -358,6 +358,9 @@ impl NapiValidator {
     }
 
     fn validate_impl(&self, data: &Value) -> Result<ValidationResult> {
+        // Fast path: is_valid() is cheaper than iter_errors() for valid data
+        // (no path tracking or error collection overhead).
+        // Only call iter_errors() on the unhappy path.
         if self.validator.is_valid(data) {
             Ok(ValidationResult {
                 valid: true,

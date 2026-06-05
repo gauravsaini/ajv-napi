@@ -69,7 +69,7 @@ validate.errors // ✅ Same error format
 
 ### Error Format Compatibility
 
-ajv-napi returns errors in the same format as Ajv:
+ajv-napi returns errors in a format similar to Ajv:
 
 ```javascript
 validate({email: "invalid"})
@@ -78,12 +78,12 @@ console.log(validate.errors)
 //   {
 //     instancePath: "/email",
 //     schemaPath: "#/properties/email/format",
-//     keyword: "format",
-//     params: { format: "email" },
-//     message: "must match format \"email\""
+//     message: "\"invalid\" is not a \"email\""
 //   }
 // ]
 ```
+
+> **Note:** Error objects include `instancePath`, `schemaPath`, and `message`. The `keyword` and `params` fields from standard Ajv are not currently included.
 
 ## 🔌 Custom Keywords & Formats (Opt-in)
 
@@ -143,25 +143,32 @@ Tested against **23 validators** using the [json-schema-benchmark](https://githu
 
 ## 🚀 Performance
 
-### Micro-benchmarks (Node.js v22, Apple M1 Max, Buffer inputs)
+### Buffer-to-Validation Pipeline (Node.js v26, Apple M5)
 
-| Scenario                  | ajv-napi       | ajv (JS)       | Improvement                |
-| ------------------------- | -------------- | -------------- | -------------------------- |
-| **Simple Schema**         | ~1.59M ops/sec | ~1.71M ops/sec | -7% (V8 wins simple cases) |
-| **Complex Schema**        | ~1,738 ops/sec | ~1,123 ops/sec | **+55%**                   |
-| **Large Payload (260KB)** | ~1,475 ops/sec | ~1,074 ops/sec | **+37%**                   |
+The benchmark below measures the realistic I/O scenario: a raw JSON `Buffer` arrives from the network and must be validated. For Ajv (JS), this means `JSON.parse(buf.toString()) → validate(parsed)`. For ajv-napi, this is a single `validateBuffer(buf)` call.
+
+| Scenario                                   | ajv-napi (`validateBuffer`) | ajv (JS) (parse + validate) | Δ          |
+| ------------------------------------------ | :-------------------------: | :-------------------------: | :--------: |
+| **Simple Schema** (39 bytes)               | ~2.40M ops/sec              | ~6.11M ops/sec              | -61% (V8 wins small payloads) |
+| **Complex Schema** (489 bytes)             | ~730K ops/sec               | ~799K ops/sec               | -9%        |
+| **Batch 20 items** (~10KB)                 | ~47.9K ops/sec              | ~43.3K ops/sec              | **+11%**   |
+| **Batch 100 items** (~50KB)                | ~9.65K ops/sec              | ~8.71K ops/sec              | **+11%**   |
+| **Large Batch 500 items** (~240KB)         | ~1.93K ops/sec              | ~1.75K ops/sec              | **+10%**   |
+
+> `isValidBuffer()` (boolean-only fast path, no error details) performs similarly to `validateBuffer` on large payloads and up to ~50% faster on small payloads.
 
 ### When ajv-napi Shines
 
-- ✅ **Fastest buffer validation**: Direct zero-copy validation from Buffer inputs (ideal for high-throughput I/O)
-- ✅ Complex schemas with regex, format validation, conditionals
-- ✅ Large JSON payloads where GC pressure matters
+- ✅ **Buffer validation for I/O workloads**: Validate raw `Buffer` inputs directly without `JSON.parse()` overhead — ideal for HTTP servers, message queues, and file processing
+- ✅ **Batch / large payloads (≥10KB)**: Consistent ~10% throughput improvement over Ajv when validating realistic multi-KB payloads from Buffers
+- ✅ **Spec compliance**: #1 most compliant validator across Draft 6 & Draft 7
+- ✅ **Memory safety**: Rust eliminates entire classes of memory bugs
 
 ### When to Stick with Ajv
 
-- Simple type-checking without regex/format validation
-- Need custom keywords or formats defined in JavaScript
-- Data already parsed as JS objects (no I/O overhead)
+- Data is already parsed as JS objects (no Buffer involved)
+- Simple type-checking on small payloads where V8 JIT excels
+- Custom keywords or formats defined in JavaScript are performance-critical (FFI overhead applies per invocation)
 
 ## 📦 Installation
 
@@ -286,8 +293,9 @@ yarn test
 
 ## 📋 Limitations
 
-- Custom keywords and formats (defined in JS) are not yet supported
-- Slightly slower than Ajv for very simple schemas due to FFI overhead
+- Custom keywords and formats (defined in JS) are supported but incur FFI overhead per invocation — prefer native JSON Schema keywords for performance-critical paths
+- Slower than Ajv for small payloads and already-parsed JS objects due to FFI boundary cost
+- Error objects include `instancePath`, `schemaPath`, and `message` but do not include `keyword` or `params` fields
 - Requires native binaries (pre-built for major platforms)
 
 ## 🤝 Migration from Ajv
