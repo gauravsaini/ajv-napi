@@ -128,8 +128,8 @@ jobs:
             target: x86_64-pc-windows-msvc
             arch: x64
         node:
-          - '18'
           - '20'
+          - '22'
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
