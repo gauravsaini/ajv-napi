@@ -32,8 +32,4 @@ mimalloc-safe = { version = "0.1", features = ["skip_collect_on_exit", "local_dy
 napi-build = "2.0"
 
 [profile.release]
-opt-level = 3
-lto = "fat"
-codegen-units = 1
-panic = "abort"
-strip = "symbols"
+lto = true
