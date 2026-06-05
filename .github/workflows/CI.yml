@@ -60,7 +60,7 @@ jobs:
           #   setup_zig: true
           #   build: yarn build --target aarch64-unknown-linux-musl --zig
 
-    name: stable - ${{ matrix.settings.target }} - node@20
+    name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
@@ -70,7 +70,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           architecture: ${{ matrix.settings.arch }}
           cache: yarn
 
@@ -128,7 +128,6 @@ jobs:
             target: x86_64-pc-windows-msvc
             arch: x64
         node:
-          - '20'
           - '22'
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -173,7 +172,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
           registry-url: https://registry.npmjs.org/
 
