@@ -7,6 +7,39 @@ The **safest**, **most spec-compliant**, and **fastest buffer-based** JSON Schem
 
 Built with Rust, NAPI-RS, and SIMD-accelerated JSON parsing. **#1 in correctness** across Draft 6 & Draft 7 in the [json-schema-benchmark](https://github.com/ebdrup/json-schema-benchmark) suite.
 
+## 🏗 Architecture
+
+ajv-napi achieves its performance by bypassing V8's garbage collector and `JSON.parse` overhead for I/O workloads, utilizing SIMD instructions and a dedicated memory allocator.
+
+```mermaid
+flowchart LR
+    subgraph Node.js[Node.js Space]
+        Buffer[Raw JSON Buffer]
+        JSObj[Parsed JS Object]
+    end
+
+    subgraph Boundary[N-API Boundary]
+        Direct[Direct Memory Slice]
+        Serde[N-API Serde]
+    end
+
+    subgraph Rust[Rust Core]
+        SIMD[simd-json\nSIMD Parsing]
+        Validator[jsonschema\nCore Validator]
+        Mimalloc[mimalloc\nMemory Allocator]
+    end
+
+    Buffer -- "validateBuffer()" --> Direct --> SIMD --> Validator
+    JSObj -- "validate()" --> Serde --> Validator
+    
+    Validator -. "Heap Allocations" .-> Mimalloc
+    
+    style SIMD fill:#f4e8ff,stroke:#8b5cf6,stroke-width:2px
+    style Validator fill:#e0f2fe,stroke:#0ea5e9,stroke-width:2px
+    style Mimalloc fill:#dcfce7,stroke:#22c55e,stroke-width:2px
+    style Direct fill:#fef9c3,stroke:#eab308,stroke-dasharray: 5 5
+```
+
 ## 🚀 Quick Start & Demo
 
 We provide a complete runnable demo in the `demo/` folder.
@@ -139,7 +172,7 @@ Tested against **23 validators** using the [json-schema-benchmark](https://githu
 | @cfworker/json-schema |       9       |
 | ajv                   |      26       |
 
-> The only 2 remaining failures in Draft 6/7 are `contentMediaType`/`contentEncoding` validation — an optional spec feature that most validators skip.
+> **Note on Draft 6/7 Failures:** The only 2 remaining failures are for `contentMediaType` and `contentEncoding`. This is intentional and compliant with the JSON Schema specification, which defines these keywords as **annotations** rather than validation assertions. For security and performance reasons, `ajv-napi` (via the underlying `jsonschema` crate) does not automatically decode and validate embedded media types.
 
 ## 🚀 Performance
 

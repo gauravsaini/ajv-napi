@@ -275,19 +275,16 @@ impl Ajv {
             .build(&schema)
             .map_err(|e| Error::from_reason(e.to_string()))?;
 
-        Ok(NapiValidator { validator })
+        let has_custom_callbacks = !self.formats.is_empty() || !self.keywords.is_empty();
+
+        Ok(NapiValidator { validator, has_custom_callbacks })
     }
 }
 
 #[napi]
 pub struct NapiValidator {
     validator: Validator,
-}
-
-#[napi(object)]
-pub struct ValidationResult {
-    pub valid: bool,
-    pub errors: Option<Vec<AjvError>>,
+    has_custom_callbacks: bool,
 }
 
 #[napi(object)]
@@ -300,19 +297,12 @@ pub struct AjvError {
 #[napi]
 impl NapiValidator {
     #[napi]
-    pub fn validate(&self, env: Env, data: serde_json::Value) -> Result<ValidationResult> {
-        self.with_env(env, |v| v.validate_impl(&data))
-    }
-
-    #[napi(js_name = "validateString")]
-    pub fn validate_string(&self, env: Env, data_str: String) -> Result<ValidationResult> {
-        let data: Value = serde_json::from_str(&data_str)
-            .map_err(|e| Error::from_reason(format!("Invalid JSON: {}", e)))?;
+    pub fn validate(&self, env: Env, data: serde_json::Value) -> Result<Option<Vec<AjvError>>> {
         self.with_env(env, |v| v.validate_impl(&data))
     }
 
     #[napi(js_name = "validateBuffer")]
-    pub fn validate_buffer(&self, env: Env, buffer: Buffer) -> Result<ValidationResult> {
+    pub fn validate_buffer(&self, env: Env, buffer: Buffer) -> Result<Option<Vec<AjvError>>> {
         self.with_env(env, |v| {
             PARSE_BUF.with(|buf| {
                 let mut buf = buf.borrow_mut();
@@ -339,33 +329,25 @@ impl NapiValidator {
         })
     }
 
-    #[napi(js_name = "isValidString")]
-    pub fn is_valid_string(&self, env: Env, data_str: String) -> Result<bool> {
-        self.with_env(env, |v| {
-            let data: Value = serde_json::from_str(&data_str)
-                .map_err(|e| Error::from_reason(format!("Invalid JSON: {}", e)))?;
-            Ok(v.validator.is_valid(&data))
-        })
-    }
-
     fn with_env<F, R>(&self, env: Env, f: F) -> Result<R>
     where
         F: FnOnce(&Self) -> Result<R>,
     {
-        CURRENT_ENV.with(|e| *e.borrow_mut() = Some(env.raw()));
-        let _guard = EnvGuard;
-        f(self)
+        if self.has_custom_callbacks {
+            CURRENT_ENV.with(|e| *e.borrow_mut() = Some(env.raw()));
+            let _guard = EnvGuard;
+            f(self)
+        } else {
+            f(self)
+        }
     }
 
-    fn validate_impl(&self, data: &Value) -> Result<ValidationResult> {
+    fn validate_impl(&self, data: &Value) -> Result<Option<Vec<AjvError>>> {
         // Fast path: is_valid() is cheaper than iter_errors() for valid data
         // (no path tracking or error collection overhead).
         // Only call iter_errors() on the unhappy path.
         if self.validator.is_valid(data) {
-            Ok(ValidationResult {
-                valid: true,
-                errors: None,
-            })
+            Ok(None)
         } else {
             let errors = self
                 .validator
@@ -377,10 +359,7 @@ impl NapiValidator {
                 })
                 .collect();
 
-            Ok(ValidationResult {
-                valid: false,
-                errors: Some(errors),
-            })
+            Ok(Some(errors))
         }
     }
 }

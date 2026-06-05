@@ -18,28 +18,26 @@ class Ajv {
     } catch (e) {
       throw new Error("Schema compilation failed: " + e)
     }
-
     const validate = (data) => {
-      // Use N-API serde directly — avoids JSON.stringify() + serde_json::from_str() round-trip
-      const result = validator.validate(data)
+      const errors = validator.validate(data)
 
-      if (result.valid) {
+      if (errors === null) {
         validate.errors = null
         return true
       } else {
-        validate.errors = result.errors
+        validate.errors = errors
         return false
       }
     }
 
     validate.validateBuffer = (buffer) => {
       // Fast path: use validateBuffer directly
-      const result = validator.validateBuffer(buffer)
-      if (result.valid) {
+      const errors = validator.validateBuffer(buffer)
+      if (errors === null) {
         validate.errors = null
         return true
       } else {
-        validate.errors = result.errors
+        validate.errors = errors
         return false
       }
     }
@@ -49,18 +47,13 @@ class Ajv {
     }
 
     validate.validateString = (str) => {
-      const result = validator.validateString(str)
-      if (result.valid) {
-        validate.errors = null
-        return true
-      } else {
-        validate.errors = result.errors
-        return false
-      }
+      const buf = Buffer.from(str, 'utf8')
+      return validate.validateBuffer(buf)
     }
 
     validate.isValidString = (str) => {
-      return validator.isValidString(str)
+      const buf = Buffer.from(str, 'utf8')
+      return validate.isValidBuffer(buf)
     }
 
     validate.schema = schema
