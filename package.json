@@ -1,6 +1,6 @@
 {
   "name": "ajv-napi",
-  "version": "0.2.8",
+  "version": "1.0.0",
   "description": "High-performance JSON Schema validator using NAPI-RS and Rust",
   "main": "wrapper.js",
   "exports": {
@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/gauravsaini/ajv-napi#readme",
   "engines": {
-    "node": ">= 16"
+    "node": ">= 22"
   },
   "scripts": {
     "build": "napi build --platform --release",

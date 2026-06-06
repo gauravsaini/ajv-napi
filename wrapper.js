@@ -6,6 +6,7 @@ class Ajv {
     this.opts = opts || {}
     this.opts.code = this.opts.code || {}
     this.errors = null
+    this.schemasCache = new Map()
   }
 
   compile(schema, opts) {
@@ -25,7 +26,7 @@ class Ajv {
         validate.errors = null
         return true
       } else {
-        validate.errors = errors
+        validate.errors = formatErrors(errors, schema)
         return false
       }
     }
@@ -37,7 +38,7 @@ class Ajv {
         validate.errors = null
         return true
       } else {
-        validate.errors = errors
+        validate.errors = formatErrors(errors, schema)
         return false
       }
     }
@@ -59,6 +60,12 @@ class Ajv {
     validate.schema = schema
     validate.errors = null
 
+    // Cache the schema by its ID if present
+    const id = schema.$id || schema.id
+    if (id && typeof id === "string") {
+      this.schemasCache.set(id, validate)
+    }
+
     return validate
   }
 
@@ -77,7 +84,20 @@ class Ajv {
     try {
       this.napiAjv.addSchema(schema, key)
     } catch (e) {}
+
+    // Compile and cache
+    const validate = this.compile(schema)
+    if (key && typeof key === "string") {
+      this.schemasCache.set(key, validate)
+    }
     return this
+  }
+
+  getSchema(key) {
+    if (typeof key === "string") {
+      return this.schemasCache.get(key)
+    }
+    return undefined
   }
 
   addFormat(name, format) {
@@ -90,7 +110,6 @@ class Ajv {
         this.napiAjv.addFormat(name, format)
       } catch (e) {
         // Ignore error if not implemented or fails, to maintain drop-in compatibility
-        // console.warn("ajv-napi: addFormat failed", e)
       }
     }
     return this
@@ -111,7 +130,7 @@ class Ajv {
       try {
         this.napiAjv.addKeyword(keyword, definition.validate)
       } catch (e) {
-        // console.warn("ajv-napi: addKeyword failed", e)
+        // Ignore error
       }
     }
     return this
@@ -124,10 +143,71 @@ class Ajv {
   removeSchema(schemaKey) {
     if (schemaKey === undefined) {
       this.napiAjv.clearCache()
+      this.schemasCache.clear()
+    } else if (typeof schemaKey === "string") {
+      this.schemasCache.delete(schemaKey)
     }
-    // TODO: Implement removing single schema by key
     return this
   }
+}
+
+function formatErrors(rawErrors, schema) {
+  if (!rawErrors) return null
+  return rawErrors.map(err => {
+    // Extract keyword from the last part of schemaPath
+    const pathParts = err.schemaPath.split('/').filter(Boolean)
+    const keyword = pathParts[pathParts.length - 1] || ""
+
+    // Prepend "#" to schemaPath
+    const schemaPath = "#" + err.schemaPath
+
+    // Reconstruct params by resolving schemaPath inside raw schema
+    let params = {}
+    try {
+      let constraintValue = schema
+      for (const part of pathParts) {
+        if (constraintValue && typeof constraintValue === 'object') {
+          constraintValue = constraintValue[part]
+        } else {
+          constraintValue = undefined
+          break
+        }
+      }
+
+      if (constraintValue !== undefined) {
+        if (['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'minLength', 'maxLength', 'minItems', 'maxItems', 'minProperties', 'maxProperties'].includes(keyword)) {
+          params = { limit: constraintValue }
+        } else if (keyword === 'required') {
+          // Extract the missing field name from the end of the instancePath
+          const missing = err.instancePath.split('/').pop()
+          params = { missingProperty: missing }
+        } else if (keyword === 'additionalProperties') {
+          const match = err.message.match(/'([^']+)'/)
+          params = { additionalProperty: match ? match[1] : "" }
+        } else if (keyword === 'type') {
+          params = { type: constraintValue }
+        } else if (keyword === 'enum') {
+          params = { allowedValues: constraintValue }
+        } else if (keyword === 'pattern') {
+          params = { pattern: constraintValue }
+        } else if (keyword === 'const') {
+          params = { allowedValue: constraintValue }
+        } else if (keyword === 'multipleOf') {
+          params = { multipleOf: constraintValue }
+        }
+      }
+    } catch (e) {
+      // Fallback silently if resolution fails
+    }
+
+    return {
+      instancePath: err.instancePath,
+      schemaPath,
+      keyword,
+      params,
+      message: err.message
+    }
+  })
 }
 
 module.exports = Ajv
